@@ -35,8 +35,8 @@ def generate_mfcc(audio_file, num_mfcc=13, n_fft=2048, hop_length=512, mfcc_leng
 def save_mfcc_features(directory, output_dir):
     audio_files = find_audio_files(directory)
     for audio_file in audio_files:
-        filename = os.path.splitext(os.path.basename(audio_file))[0]  # Extract filename without extension
-        mfcc_features, mfcc_features_flattened = generate_mfcc(audio_file, mfcc_length=100)  # Set desired length
+        filename = os.path.splitext(os.path.basename(audio_file))[0]
+        mfcc_features, mfcc_features_flattened = generate_mfcc(audio_file, mfcc_length=100)  # Set length
 
         # Save MFCC features
         output_file = os.path.join(output_dir, f"{filename}.npy")  # Output file path
