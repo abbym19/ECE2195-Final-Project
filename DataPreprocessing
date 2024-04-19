@@ -1,0 +1,56 @@
+import os
+import librosa
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def find_audio_files(directory):
+    audio_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".wav"):
+                audio_files.append(os.path.join(root, file))
+    return audio_files
+
+
+def generate_mfcc(audio_file, num_mfcc=13, n_fft=2048, hop_length=512, mfcc_length=100):
+    # Load audio file
+    y, sr = librosa.load(audio_file, sr=None)
+
+    # Extract MFCC features
+    mfcc_features = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=num_mfcc, n_fft=n_fft, hop_length=hop_length)
+
+    # Make the MFCC array a fixed length
+    if mfcc_features.shape[1] < mfcc_length:
+        mfcc_features = np.pad(mfcc_features, ((0, 0), (0, mfcc_length - mfcc_features.shape[1])), mode='constant')
+    elif mfcc_features.shape[1] > mfcc_length:
+        mfcc_features = mfcc_features[:, :mfcc_length]
+
+    # Flatten array to 1D
+    mfcc_features_flattened = mfcc_features.flatten()
+
+    return mfcc_features, mfcc_features_flattened
+
+
+def save_mfcc_features(directory, output_dir):
+    audio_files = find_audio_files(directory)
+    for audio_file in audio_files:
+        filename = os.path.splitext(os.path.basename(audio_file))[0]  # Extract filename without extension
+        mfcc_features, mfcc_features_flattened = generate_mfcc(audio_file, mfcc_length=100)  # Set desired length
+
+        # Save MFCC features
+        output_file = os.path.join(output_dir, f"{filename}.npy")  # Output file path
+        np.save(output_file, mfcc_features_flattened)
+
+
+
+audio_directory = '/Users/abigailmiller/Downloads/Dataset/noise'
+output_directory = '/Users/abigailmiller/Desktop/2195Project/noiseoutput'
+
+save_mfcc_features(audio_directory, output_directory)
+
+# To load the saved flattened MFCC features
+## saved_mfcc_features = np.load(output_file)
+# Print the loaded array
+## print(saved_mfcc_features)
+
